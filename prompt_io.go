@@ -10,13 +10,13 @@ import (
 	"text/template"
 )
 
-type PromptTemplate[I any, O any] struct {
+type PromptIO[I any, O any] struct {
 	tmpl   *template.Template
 	parser func(string) (O, error)
 }
 
-func NewPromptTemplate[I any, O any](t string, parser func(string) (O, error)) (PromptTemplate[I, O], error) {
-	pt := PromptTemplate[I, O]{}
+func NewPromptIO[I any, O any](t string, parser func(string) (O, error)) (PromptIO[I, O], error) {
+	pt := PromptIO[I, O]{}
 
 	tt, err := template.New("").Parse(t)
 	if err != nil {
@@ -28,7 +28,7 @@ func NewPromptTemplate[I any, O any](t string, parser func(string) (O, error)) (
 	return pt, nil
 }
 
-func (t PromptTemplate[I, O]) ToPrompt(data I) (string, error) {
+func (t PromptIO[I, O]) ToPrompt(data I) (string, error) {
 	buf := &bytes.Buffer{}
 	if err := t.tmpl.Execute(buf, data); err != nil {
 		return "", err
@@ -36,6 +36,6 @@ func (t PromptTemplate[I, O]) ToPrompt(data I) (string, error) {
 	return buf.String(), nil
 }
 
-func (t PromptTemplate[I, O]) ParseResult(resp string) (O, error) {
+func (t PromptIO[I, O]) ParseResult(resp string) (O, error) {
 	return t.parser(resp)
 }

@@ -17,19 +17,19 @@ type LLMProvider interface {
 
 type Generator[I any, O any] struct {
 	llm      LLMProvider
-	template PromptTemplate[I, O]
+	promptIO PromptIO[I, O]
 }
 
-func NewGenerator[I any, O any](llm LLMProvider, template PromptTemplate[I, O]) Generator[I, O] {
+func NewGenerator[I any, O any](llm LLMProvider, promptIO PromptIO[I, O]) Generator[I, O] {
 	return Generator[I, O]{
 		llm,
-		template,
+		promptIO,
 	}
 }
 
 func (g Generator[I, O]) Execute(ctx context.Context, data I) (O, error) {
 	var output O
-	prompt, err := g.template.ToPrompt(data)
+	prompt, err := g.promptIO.ToPrompt(data)
 
 	if err != nil {
 		return output, err
@@ -40,7 +40,7 @@ func (g Generator[I, O]) Execute(ctx context.Context, data I) (O, error) {
 		return output, err
 	}
 
-	return g.template.parser(rawOutput)
+	return g.promptIO.parser(rawOutput)
 
 }
 
